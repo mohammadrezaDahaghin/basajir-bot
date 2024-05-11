@@ -7,7 +7,7 @@ import asyncio
 import hashlib
 from telebot import types
 import os
-TOKEN =""
+TOKEN ="6463346745:AAGtSlb2baBQSWF7dwT-xnj4sksE9ApOwxc"
 bot = telebot.TeleBot(TOKEN)
 
 # Jira base URL
@@ -22,7 +22,10 @@ os.environ['JIRA_USERNAME'] = ''
 os.environ['JIRA_PASSWORD'] = ''
 
 
-headers = {"Accept": "application/json"}
+headers = {
+  "Accept": "application/json",
+  "Content-Type": "application/json"
+}
 
 def authenticate_and_get_session(username, password):
     data = {"username": username, "password": password}
@@ -38,12 +41,23 @@ def authenticate_and_get_session(username, password):
         return None
 
 def get_issues(session_value):
-    us=os.getenv('JIRA_USERNAME')
-    sessio=os.getenv('SESSION_VALUE')
+    # us=os.getenv('JIRA_USERNAME')
+    sessio = session_value
+    print(f'assignee = {username}{session_value}')
 
-    params = {'jql': f'assignee = {us}', 'maxResults': 10}
-    headers_issue = {'Authorization': sessio}
-    response = requests.get(getissue_url, params=params, headers=headers_issue)
+    # params = {"jql": f"assignee = {username}", "maxResults": 1}
+    payload = json.dumps({
+        "jql": f"assignee = {username}",
+        "maxResults": 1
+    })
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_value}"
+    }
+    print(getissue_url)
+    response = requests.post(getissue_url, data=payload, headers=headers)
+    print(response.json())
     if response.status_code == 200:
         print("1")
         return response.json().get('issues', [])
