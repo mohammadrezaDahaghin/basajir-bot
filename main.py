@@ -48,15 +48,17 @@ def get_issues(session_value):
     # params = {"jql": f"assignee = {username}", "maxResults": 1}
     payload = json.dumps({
         "jql": f"assignee = {username}",
-        "maxResults": 1
+        "maxResults": 10
     })
-    headers = {
+
+    headers_iss = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {session_value}"
     }
+
+    auth = HTTPBasicAuth(os.getenv('JIRA_USERNAME'), os.getenv('JIRA_PASSWORD'))
     print(getissue_url)
-    response = requests.post(getissue_url, data=payload, headers=headers)
+    response = requests.post(getissue_url, data=payload, headers=headers_iss, auth=auth)
     print(response.json())
     if response.status_code == 200:
         print("1")
