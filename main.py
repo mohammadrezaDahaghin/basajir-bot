@@ -1,5 +1,6 @@
 import requests
 from requests.auth import HTTPBasicAuth
+from telebot import apihelper
 import json
 import telebot
 from telebot.async_telebot import AsyncTeleBot
