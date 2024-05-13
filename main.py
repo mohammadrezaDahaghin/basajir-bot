@@ -27,6 +27,8 @@ os.environ['SESSION_VALUE'] = ''
 os.environ['JIRA_USERNAME'] = ''
 os.environ['JIRA_PASSWORD'] = ''
 os.environ['CHAT_ID'] = ''
+previous_issue_count = 0
+previous_issues = {}
 
 
 headers = {
@@ -82,17 +84,28 @@ def username_handler(message):
     bot.register_next_step_handler(sent_msg, secure_handler)
 
 
-def job():
+def Task():
+    global previous_issue_count
+    global previous_issues
     session_token = authenticate_and_get_session(os.getenv('JIRA_USERNAME'), os.getenv('JIRA_PASSWORD'))
     if session_token:
         issues = get_issues(session_token)
         if issues:
-            for issue in issues:
-                issue_key = issue['key']
-                summary = issue['fields']['summary']
-                creator = issue['fields']['creator']['displayName']
-                message_text = f" Issue Key: {issue_key}\n Summary: {summary}\n Creator: {creator}"
+            issue_count = len(issues)
+            if issue_count > previous_issue_count:
+                new_issues_count = issue_count - previous_issue_count
+                message_text = f"تعداد مسائل جدید در این دقیقه: {new_issues_count}\n"
+                for issue in issues:
+                    if issue['key'] not in previous_issues:
+                        issue_key = issue['key']
+                        summary = issue['fields']['summary']
+                        creator = issue['fields']['creator']['displayName']
+                        message_text += f"Issue Key: {issue_key}\n Summary: {summary}\n Creator: {creator}\n\n"
+                        previous_issues[issue_key] = issue
                 bot.send_message(os.getenv('CHAT_ID'), message_text)
+                previous_issue_count = issue_count
+            else:
+                previous_issue_count = issue_count
 
 
 def secure_handler(message):
@@ -117,7 +130,7 @@ def secure_handler(message):
                 bot.send_message(message.chat.id, message_text)
                 print(os.getenv('CHAT_ID'))
 
-        schedule.every(1).minutes.do(job)
+        schedule.every(1).minutes.do(Task)
 
         while True:
             schedule.run_pending()
