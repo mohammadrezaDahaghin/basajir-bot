@@ -1,0 +1,1 @@
+ In the first phase, this Telegram bot helps employees or developers and ... To be informed about the tasks that are created for them in Jira, and this is more good for those employees who forget to visit their own Jira panel every day and check it
